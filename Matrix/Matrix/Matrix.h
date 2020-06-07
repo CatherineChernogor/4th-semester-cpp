@@ -7,13 +7,14 @@ class MatrixExeption {
 class Matrix {
 	int col;
 	int row;
-	int** mat;
+	float** mat;
 
+	void getMinor(Matrix m, int row, int col, Matrix new_m);
 public:
 
 	Matrix();//+
 	Matrix(int r, int c);//+
-	Matrix(int r, int c, int** d);//+
+	Matrix(int r, int c, float** d);//+
 	Matrix(const Matrix&m);//+
 
 	~Matrix();//+
@@ -29,6 +30,7 @@ public:
 	void out();//+
 	int getRow();//+
 	int getCol();//+
+	bool isSquare();//+
 
 	friend ostream& operator <<(ostream& out, const Matrix& m);//+
 
