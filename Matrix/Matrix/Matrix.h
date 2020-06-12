@@ -1,9 +1,7 @@
 #pragma once
 #include <iostream>
 using namespace std;
-class MatrixExeption {
 
-};
 class Matrix {
 	int col;
 	int row;
@@ -15,17 +13,18 @@ public:
 	Matrix();//+
 	Matrix(int r, int c);//+
 	Matrix(int r, int c, float** d);//+
-	Matrix(const Matrix&m);//+
+	Matrix(const Matrix& m);//+
 
 	~Matrix();//+
-
+	Matrix& operator =(const Matrix& m);
 	Matrix& operator +=(const Matrix& m);//+
 	Matrix operator +(const Matrix& m) const;//+
 	Matrix& operator -=(const Matrix& m);//+
 	Matrix operator -(const Matrix& m) const;//+
 	Matrix operator *(const Matrix& m) const;//+
 
-	int getDet();
+	Matrix reshapeToTriangle();//+
+	float getDet();
 	Matrix getInv();
 	void out();//+
 	int getRow();//+

@@ -187,64 +187,52 @@ void count_zero(int* arr) {
 	}
 }
 
-//int Matrix::getDet() {
-//	if (this->isSquare()) {
-//		for (int i = 0; i < this->row; i++) {
-//			count_zero(this->mat[i]);
-//			cout << '\n';
-//		}
-//
-//		return 10;
-//	}
-//	else {
-//		cout << "Error: not square matrix";
-//		return 0;
-//	}
-//}
+Matrix Matrix::reshapeToTriangle() {
 
-void Matrix::getMinor(Matrix m, int row, int col, Matrix new_m) {
-	int _row = 0, _col = 0;//смещение
+	Matrix res(*this);
 
-	for (int i = 0; i < m.row - 1; i++) {
+	for (int i = 1; i < res.col; i++) {
+		for (int j = i; j < res.col; j++) {
+			for (int k = res.col - 1; k >= 0; k--) {
 
-		if (i == row) {
-			_row = 1; // встретили нужную строку, пропускаем со смещением
-		}
-
-		_col = 0;
-		for (int j = 0; j < m.col - 1; j++) {
-			if (j == col) {
-				_col = 1; // встретили нужный столбец, пропускаем его смещением
+				float koef = res.mat[j][i - 1] / res.mat[i - 1][i - 1];
+				res.mat[j][k] -= koef * res.mat[i - 1][k];
 			}
-			new_m.mat[i][j] = m.mat[_row + i][_col + j];
 		}
 	}
+	return res;
 }
-int Matrix::getDet() {
-	int det = 0;
-	int degree = 1; // степень в которую возводиться -1 
 
-	if (this->isSquare()) {
-		if (this->row == 1) {
-			return this->mat[0][0];
-		}
-		else if (this->row == 2) {
-			return this->mat[0][0] * this->mat[1][1] - this->mat[0][1] * this->mat[1][0];
-		}
-		else {
-			
-			Matrix new_mat(this->row-1, this->col-1);//алгебраическое дополнение
-
-			for (int j = 0; j < this->col; j++) {//раскладываем по 0 строке
-
-				getMinor(*this, 0, j, new_mat);//удалить из матрицы i строку и j столбец
-
-				det = det + (degree * this->mat[0][j] * new_mat.getDet());
-				degree = -degree;
+Matrix& Matrix::operator =(const Matrix& m) {
+	try {
+		if (m.row == row && m.col == col) {
+			for (int i = 0; i < row; i++) {
+				for (int j = 0; j < col; j++) {
+					mat[i][j] = m.mat[i][j];
+				}
 			}
-			new_mat.~Matrix();
 		}
+		else throw - 1;
+	}
+	catch (int i) {
+		cout << "Error " << i << " invalid matrix dimention";
+		exit(i);
+	}
+}
 
+float Matrix::getDet() {
+
+	float det=1;
+	if (this->isSquare()) {
+		Matrix res(*this);
+		res = res.reshapeToTriangle();
+
+		for (int i = 0; i < res.row; i++) {
+			for (int j = 0; j < res.col; j++) {
+				if (i==j)
+				det*= res.mat[i][j];
+			}
+		}
 		return det;
 	}
 	else {
