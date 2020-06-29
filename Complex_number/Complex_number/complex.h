@@ -87,13 +87,23 @@ template <class T> ostream& operator <<(ostream& out, Complex<T>& n) {
 
 	if (n.im >= 0) out << '+';
 
-	out << n.im<<'i';
-	
+	out << n.im << 'i';
+
 	return out;
 }
 
-template <class T> Complex<T> Complex<T>::pow(int p) {
+template <class T> Complex<T> Complex<T>::pow(int deg) {
 
+	if (deg == 0) {
+		return Complex(1, 0);
+	}
+	else {
+		Complex<T> res(*this);
+		for (int i = 1; i < deg; i++) {
+			res = res * *this;
+		}
+		return res;
+	}
 }
 
 template <class T> double Complex<T>::module() {
