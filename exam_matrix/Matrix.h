@@ -1,13 +1,14 @@
 #pragma once
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 using namespace std;
 
 template<class T> class Matrix {
 	int col;
 	int row;
 	float** mat;
-	Matrix addIdentMax();
+	//Matrix addIdentMax();
 public:
 
 	Matrix();
@@ -17,21 +18,32 @@ public:
 
 	~Matrix();
 	Matrix<T>& operator =(const Matrix<T>& m);
-	Matrix<T>& operator +=(const Matrix<T>& m);
-	Matrix<T> operator +(const Matrix<T>& m) const;
-	Matrix<T>& operator -=(const Matrix<T>& m);
-	Matrix<T> operator -(const Matrix<T>& m) const;
+	//Matrix<T>& operator +=(const Matrix<T>& m);
+	//Matrix<T> operator +(const Matrix<T>& m) const;
+	//Matrix<T>& operator -=(const Matrix<T>& m);
+	//Matrix<T> operator -(const Matrix<T>& m) const;
 	Matrix<T> operator *(const Matrix<T>& m) const;
 
-	Matrix<T> reshapeToTriangle();
 	float getDet();
-	Matrix<T> getInv();
-	void out();
+	//Matrix<T> getInv();
+	void fout(string filename);
+	void fin(string filename);
+
 	int getRow();
 	int getCol();
+	void setMatEl(int r, int c, T n);
 	bool isSquare();
 
-	template <class> friend ostream& operator <<(ostream& out, Matrix<T>& m);
+	template <class T> friend ostream& operator <<(ostream& out, Matrix<T>& m){
+		for (int i = 0; i < m.row; i++) {
+			for (int j = 0; j < m.col; j++) {
+				cout.precision(2);
+				out << setw(4) << m.mat[i][j] << " ";
+			}
+			out << '\n';
+		}
+		return out;
+	}
 
 };
 
@@ -114,80 +126,89 @@ template <class T> int Matrix<T>::getCol() {
 template <class T> int Matrix<T>::getRow() {
 	return this->row;
 }
+template <class T> void Matrix<T>::setMatEl(int r, int c, T n) {
+	this->mat[r][c] = n;
+}
 
- template <class T> void Matrix<T>::out() {
+template <class T> void Matrix<T>::fout(string filename) {
+	ofstream out(filename);
+
 	for (int i = 0; i < row; i++) {
 
 		for (int j = 0; j < col; j++) {
-			cout << mat[i][j] << ' ';
-		}
-		cout << '\n';
-	}
-}
-
- template <class T> ostream& operator<<(ostream& out, const Matrix<T>& m) {
-	for (int i = 0; i < m.row; i++) {
-		for (int j = 0; j < m.col; j++) {
-			cout.precision(2);
-			out << setw(4) << m.mat[i][j] << " ";
+			out << mat[i][j] << ' ';
 		}
 		out << '\n';
 	}
-	return out;
+	out.close();
 }
 
-
-template <class T> Matrix<T>& Matrix<T>::operator+=(const Matrix& m) {
-	try {
-		if (row == m.row && col == m.col) {
-			for (int i = 0; i < row; i++) {
-				for (int j = 0; j < col; j++) {
-					mat[i][j] += m.mat[i][j];
-				}
-			}
-			return *this;
-		}
-		else {
-			throw 1;
+template <class T> void Matrix<T>::fin(string filename) {
+	ifstream in;
+	in.open(filename);
+	T n;
+	for (int i = 0; i < this->row; i++) {
+		for (int j = 0; j < this->col; j++) {
+			in >> n;
+			setMatEl(i, j, n);
 		}
 	}
-	catch (int i) {
-		cout << "Error " << i << " invalid res.mat dimention";
-		exit(i);
-	}
+	in.close();
+
 }
 
-template <class T> Matrix<T> Matrix<T>::operator+(const Matrix& m) const {
-	Matrix res(*this);
-	return res += m;
-}
 
-template <class T> Matrix<T>& Matrix<T>::operator-=(const Matrix& m) {
-	try {
-		if (row == m.row && col == m.col) {
-			for (int i = 0; i < row; i++) {
-				for (int j = 0; j < col; j++) {
-					mat[i][j] -= m.mat[i][j];
-				}
-			}
-			return *this;
-		}
-		else {
-			throw 1;
-		}
-	}
-	catch (int i) {
-		cout << "Error " << i << " invalid res.mat dimention";
-		exit(i);
-	}
-}
+//template <class T> Matrix<T>& Matrix<T>::operator+=(const Matrix& m) {
+//	try {
+//		if (row == m.row && col == m.col) {
+//			for (int i = 0; i < row; i++) {
+//				for (int j = 0; j < col; j++) {
+//					mat[i][j] += m.mat[i][j];
+//				}
+//			}
+//			return *this;
+//		}
+//		else {
+//			throw 1;
+//		}
+//	}
+//	catch (int i) {
+//		cout << "Error " << i << " invalid res.mat dimention";
+//		exit(i);
+//	}
+//}
 
- template <class T> Matrix<T> Matrix<T>::operator-(const Matrix& m) const {
-	Matrix res(*this);
-	return res -= m;
-}
+//template <class T> Matrix<T> Matrix<T>::operator+(const Matrix& m) const {
+//	Matrix res(*this);
+//	return res += m;
+//}
 
- template <class T> Matrix<T> Matrix<T>::operator *(const Matrix& m) const {
+//template <class T> Matrix<T>& Matrix<T>::operator-=(const Matrix& m) {
+//	try {
+//		if (row == m.row && col == m.col) {
+//			for (int i = 0; i < row; i++) {
+//				for (int j = 0; j < col; j++) {
+//					mat[i][j] -= m.mat[i][j];
+//				}
+//			}
+//			return *this;
+//		}
+//		else {
+//			throw 1;
+//		}
+//	}
+//	catch (int i) {
+//		cout << "Error " << i << " invalid res.mat dimention";
+//		exit(i);
+//	}
+//}
+
+//template <class T> Matrix<T> Matrix<T>::operator-(const Matrix& m) const {
+//	Matrix res(*this);
+//	return res -= m;
+//}
+
+template <class T> Matrix<T> Matrix<T>::operator *(const Matrix& m) const {
 	try {
 		if (this->col == m.row) {
 
@@ -210,7 +231,7 @@ template <class T> Matrix<T>& Matrix<T>::operator-=(const Matrix& m) {
 	}
 }
 
- template <class T> bool Matrix<T>::isSquare() {
+template <class T> bool Matrix<T>::isSquare() {
 	if (this->row == this->col) {
 		return true;
 	}
@@ -224,23 +245,9 @@ void count_zero(int* arr) {
 	}
 }
 
-template <class T> Matrix<T> Matrix<T>::reshapeToTriangle() {
 
-	Matrix res(*this);
 
-	for (int i = 1; i < res.col; i++) {
-		for (int j = i; j < res.col; j++) {
-			for (int k = res.col - 1; k >= 0; k--) {
-
-				float koef = res.mat[j][i - 1] / res.mat[i - 1][i - 1];
-				res.mat[j][k] -= koef * res.mat[i - 1][k];
-			}
-		}
-	}
-	return res;
-}
-
- template <class T> Matrix<T>& Matrix<T>::operator =(const Matrix& m) {
+template <class T> Matrix<T>& Matrix<T>::operator =(const Matrix& m) {
 	try {
 		if (m.row == row && m.col == col) {
 			for (int i = 0; i < row; i++) {
@@ -257,7 +264,7 @@ template <class T> Matrix<T> Matrix<T>::reshapeToTriangle() {
 	}
 }
 
- template <class T> float Matrix<T>::getDet() {
+template <class T> float Matrix<T>::getDet() {
 
 	float det = 1;
 	if (this->isSquare()) {
@@ -278,32 +285,32 @@ template <class T> Matrix<T> Matrix<T>::reshapeToTriangle() {
 	}
 }
 
-template <class T> Matrix<T> Matrix<T>::addIdentMax() {
-	int n_col = col * 2;
-	int n_row = row;
-
-	float** n_mat = new float* [n_row];
-	for (int i = 0; i < n_row; i++) {
-		n_mat[i] = new float[n_col];
-	}
-
-	for (int i = 0; i < row; i++) {
-
-		for (int j = 0; j < col; j++) {
-			n_mat[i][j] = mat[i][j];
-		}
-		for (int j = col; j < n_col; j++) {
-
-			if (i + col == j)
-				n_mat[i][j] = 1;
-			else
-				n_mat[i][j] = 0;
-		}
-	}
-
-	Matrix n(n_row, n_col, n_mat);
-	return n;
-}
+//template <class T> Matrix<T> Matrix<T>::addIdentMax() {
+//	int n_col = col * 2;
+//	int n_row = row;
+//
+//	float** n_mat = new float* [n_row];
+//	for (int i = 0; i < n_row; i++) {
+//		n_mat[i] = new float[n_col];
+//	}
+//
+//	for (int i = 0; i < row; i++) {
+//
+//		for (int j = 0; j < col; j++) {
+//			n_mat[i][j] = mat[i][j];
+//		}
+//		for (int j = col; j < n_col; j++) {
+//
+//			if (i + col == j)
+//				n_mat[i][j] = 1;
+//			else
+//				n_mat[i][j] = 0;
+//		}
+//	}
+//
+//	Matrix n(n_row, n_col, n_mat);
+//	return n;
+//}
 
 
 //Matrix template <class T> Matrix<T>::getInv() {
