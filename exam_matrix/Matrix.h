@@ -2,15 +2,19 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-using namespace std;
+#include <string>
 
-template<class T> class Matrix {
+template <class T>
+class Matrix
+{
 	int col;
 	int row;
 	float** mat;
-	//Matrix addIdentMax();
-public:
 
+	Matrix<T> getMinor(int a, int  b);
+	void setMatrixElement(int r, int c, T n) { this->mat[r][c] = n; }
+
+public:
 	Matrix();
 	Matrix(int r, int c);
 	Matrix(int r, int c, float** d);
@@ -18,46 +22,48 @@ public:
 
 	~Matrix();
 
-	Matrix<T>& operator =(const Matrix<T>& m);
-	Matrix<T> operator *(const Matrix<T>& m) const;
+	Matrix<T>& operator=(const Matrix<T>& m);
+	Matrix<T> operator*(const Matrix<T>& m) const;
 
-	float getDet();				//determinant
-	Matrix<T> getInv();			//inverse matrix------------------------------------
-	Matrix<T> getTransp();		//transposed matrix
-	bool isDegen();				// is degenerate matrix
+	float getDet();		   //determinant
+	Matrix<T> getInv();	   //inverse matrix
+	Matrix<T> getTransp(); //transposed matrix
+	bool isDegen();		   // is degenerate matrix
 
-	int getRow();
-	int getCol();
-	void setMatrixElement(int r, int c, T n);
-	bool isSquare();
+	void fout(std::string filename);
+	void fin(std::string filename);
 
-	void fout(string filename);
-	void fin(string filename);
 
-	//Matrix<T>& operator +=(const Matrix<T>& m);
-	//Matrix<T> operator +(const Matrix<T>& m) const;
-	//Matrix<T>& operator -=(const Matrix<T>& m);
-	//Matrix<T> operator -(const Matrix<T>& m) const;
+	int getRow() { return this->row; }
+	int getCol() { return this->col; }
 
-	template <class T> friend ostream& operator <<(ostream& out, Matrix<T>& m) {
-		for (int i = 0; i < m.row; i++) {
-			for (int j = 0; j < m.col; j++) {
-				cout.precision(2);
-				out << setw(4) << m.mat[i][j] << " ";
+	bool isSquare() { return this->row == this->col ? true : false; }
+
+	template <class T> friend std::ostream& operator<<(std::ostream& out, Matrix<T>& m)
+	{
+		for (int i = 0; i < m.row; i++)
+		{
+			for (int j = 0; j < m.col; j++)
+			{
+				std::cout.precision(4);
+				out << std::setw(6) << m.mat[i][j] << " ";
 			}
 			out << '\n';
 		}
 		return out;
 	}
 	Matrix<T> reshapeToTriangle()
-		//template <class T> Matrix<T> Matrix<T>::reshapeToTriangle() 
+		//template <class T> Matrix<T> Matrix<T>::reshapeToTriangle()
 	{
 
 		Matrix res(*this);
 
-		for (int i = 1; i < res.col; i++) {
-			for (int j = i; j < res.col; j++) {
-				for (int k = res.col - 1; k >= 0; k--) {
+		for (int i = 1; i < res.col; i++)
+		{
+			for (int j = i; j < res.col; j++)
+			{
+				for (int k = res.col - 1; k >= 0; k--)
+				{
 
 					float koef = res.mat[j][i - 1] / res.mat[i - 1][i - 1];
 					res.mat[j][k] -= koef * res.mat[i - 1][k];
@@ -68,101 +74,203 @@ public:
 	}
 };
 
-
-
-template <class T> Matrix<T>::Matrix() {
+template <class T> Matrix<T>::Matrix()
+{
 	row = 2;
 	col = 2;
 
 	mat = new float* [row];
-	for (int i = 0; i < row; i++) {
+	for (int i = 0; i < row; i++)
+	{
 		mat[i] = new float[col];
 	}
 
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
 			i == j ? mat[i][j] = 1.0 : mat[i][j] = 0.0;
 		}
 	}
 }
-template <class T> Matrix<T>::Matrix(int r, int c) {
+template <class T> Matrix<T>::Matrix(int r, int c)
+{
 	row = r;
 	col = c;
 
 	mat = new float* [row];
-	for (int i = 0; i < row; i++) {
+	for (int i = 0; i < row; i++)
+	{
 		mat[i] = new float[col];
 	}
 
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
 			mat[i][j] = 0.0;
 		}
 	}
 }
-template <class T> Matrix<T>::Matrix(int r, int c, float** d) {
+template <class T> Matrix<T>::Matrix(int r, int c, float** d)
+{
 	row = r;
 	col = c;
 
 	mat = new float* [row];
-	for (int i = 0; i < row; i++) {
+	for (int i = 0; i < row; i++)
+	{
 		mat[i] = new float[col];
 	}
 
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
 			mat[i][j] = d[i][j];
 		}
 	}
 }
-template <class T> Matrix<T>::Matrix(const Matrix& m) {
+template <class T> Matrix<T>::Matrix(const Matrix& m)
+{
 	this->row = m.row;
 	this->col = m.col;
 
 	this->mat = new float* [this->row];
-	for (int i = 0; i < this->row; i++) {
+	for (int i = 0; i < this->row; i++)
+	{
 		mat[i] = new float[this->col];
 	}
 
-	for (int i = 0; i < this->row; i++) {
-		for (int j = 0; j < this->col; j++) {
+	for (int i = 0; i < this->row; i++)
+	{
+		for (int j = 0; j < this->col; j++)
+		{
 			this->mat[i][j] = m.mat[i][j];
 		}
 	}
 }
 
 template <class T> Matrix<T>::~Matrix() {
-	for (int i = 0; i < row; i++) {
+	for (int i = 0; i < row; i++)
+	{
 		delete[] mat[i];
 	}
 	delete[] mat;
 }
 
-template <class T> Matrix<T>& Matrix<T>::operator =(const Matrix& m) {
-	try {
-		if (m.row == row && m.col == col) {
-			for (int i = 0; i < row; i++) {
-				for (int j = 0; j < col; j++) {
+template <class T> Matrix<T>& Matrix<T>::operator=(const Matrix& m)
+{
+	try
+	{
+		if (m.row == row && m.col == col)
+		{
+			for (int i = 0; i < row; i++)
+			{
+				for (int j = 0; j < col; j++)
+				{
 					mat[i][j] = m.mat[i][j];
 				}
 			}
 		}
-		else throw - 1;
+		else
+			throw - 1;
 	}
-	catch (int i) {
-		cout << "Error " << i << " invalid res.mat dimention";
+	catch (int i)
+	{
+		std::cout << "Error " << i << " invalid res.mat dimention";
 		exit(i);
 	}
 }
-template <class T> Matrix<T> Matrix<T>::operator *(const Matrix& m) const {
-	try {
-		if (this->col == m.row) {
+template <class T> Matrix<T> Matrix<T>::operator*(const Matrix& m) const
+{
+	try
+	{
+		if (this->col == m.row)
+		{
 
 			Matrix res(this->row, m.col);
-			for (int i = 0; i < this->row; i++) {
-				for (int j = 0; j < m.col; j++) {
+			for (int i = 0; i < this->row; i++)
+			{
+				for (int j = 0; j < m.col; j++)
+				{
 					for (int k = 0; k < this->col; k++)
 						res.mat[i][j] += this->mat[i][k] * m.mat[k][j];
+				}
+			}
+			return res;
+		}
+		else
+		{
+			throw 1;
+		}
+	}
+	catch (int i)
+	{
+		std::cout << "Error " << i << " invalid res.mat dimention";
+		exit(i);
+	}
+}
+
+template <class T> Matrix<T> Matrix<T>::getMinor(int a, int  b) {
+	Matrix res(this->row-1, this->col-1);
+	int koef_i = 0;
+	for (int i = 0; i < res.row; i++) {
+		int koef_j = 0;
+		for (int j = 0; j < res.col; j++) {
+			if (i == a) koef_i = 1;
+			if (j == b) koef_j = 1;
+			res.mat[i][j] = this->mat[i+koef_i][j+koef_j];
+		}
+	}
+	return res;
+}
+template <class T> float Matrix<T>::getDet()
+{
+
+	float det = 1;
+	if (this->isSquare())
+	{
+		Matrix res(*this);
+		res = res.reshapeToTriangle();
+
+		for (int i = 0; i < res.row; i++)
+		{
+			for (int j = 0; j < res.col; j++)
+			{
+				if (i == j)
+					det *= res.mat[i][j];
+			}
+		}
+		return det;
+	}
+	else
+	{
+		std::cout << "Error: not square res.mat";
+		return 0;
+	}
+}
+template <class T> Matrix<T> Matrix<T>::getInv() {
+	try {
+		if (!this->isDegen()) {
+			Matrix<T> res(this->row, this->col);
+
+			for (int i = 0; i < this->row; i++) {		//create union matrix
+				for (int j = 0; j < this->col; j++) {
+					Matrix minor = this->getMinor(i, j);
+					double d_minor = minor.getDet();
+					//std::cout << minor << ' ' << minor.getDet() << "\n\n";
+					int sign = ((i + j) % 2 == 0 ? 1 : -1);
+					res.mat[i][j] = sign * d_minor;
+				}
+			}
+
+			res = res.getTransp();						//union and transposed
+			double det = this->getDet();
+
+			for (int i = 0; i < this->row; i++) {
+				for (int j = 0; j < this->col; j++) {
+					res.mat[i][j] /= det;
 				}
 			}
 			return res;
@@ -171,198 +279,58 @@ template <class T> Matrix<T> Matrix<T>::operator *(const Matrix& m) const {
 			throw 1;
 		}
 	}
-	catch (int i) {
-		cout << "Error " << i << " invalid res.mat dimention";
+	catch (int i)
+	{
+		std::cout << "Error " << i << " matrix is degenerated";
 		exit(i);
 	}
 }
+template <class T> Matrix<T> Matrix<T>::getTransp()
+{
 
-template <class T> float Matrix<T>::getDet() {
-
-	float det = 1;
-	if (this->isSquare()) {
-		Matrix res(*this);
-		res = res.reshapeToTriangle();
-
-		for (int i = 0; i < res.row; i++) {
-			for (int j = 0; j < res.col; j++) {
-				if (i == j)
-					det *= res.mat[i][j];
-			}
-		}
-		return det;
-	}
-	else {
-		cout << "Error: not square res.mat";
-		return 0;
-	}
-}
-template <class T> Matrix<T> Matrix<T>::getInv() {}
-template <class T> Matrix<T> Matrix<T>::getTransp() {
 	Matrix<T> res(*this);
 
-	for (int i = 0; i < this->row; i++) {
-		for (int j = 0; j < this->col; j++) {
+	for (int i = 0; i < this->row; i++)
+	{
+		for (int j = 0; j < this->col; j++)
+		{
 			res.mat[j][i] = this->mat[i][j];
 		}
 	}
-
 	return res;
 }
-template <class T> bool Matrix<T>::isDegen() {
+template <class T> bool Matrix<T>::isDegen()
+{
 	return this->getDet() == 0 ? true : false;
 }
 
-template <class T> int Matrix<T>::getRow() {
-	return this->row;
-}
-template <class T> int Matrix<T>::getCol() {
-	return this->col;
-}
-template <class T> void Matrix<T>::setMatrixElement(int r, int c, T n) {
-	this->mat[r][c] = n;
-}
-template <class T> bool Matrix<T>::isSquare() {
-	if (this->row == this->col) {
-		return true;
-	}
-	else return false;
-}
+template <class T> void Matrix<T>::fout(std::string filename)
+{
 
-template <class T> void Matrix<T>::fout(string filename) {
-	ofstream out(filename);
+	std::ofstream out(filename);
+	for (int i = 0; i < row; i++)
+	{
 
-	for (int i = 0; i < row; i++) {
-
-		for (int j = 0; j < col; j++) {
+		for (int j = 0; j < col; j++)
+		{
 			out << mat[i][j] << ' ';
 		}
 		out << '\n';
 	}
 	out.close();
 }
-template <class T> void Matrix<T>::fin(string filename) {
-	ifstream in;
-	in.open(filename);
+template <class T> void Matrix<T>::fin(std::string filename)
+{
+
+	std::ifstream in(filename);
 	T n;
-	for (int i = 0; i < this->row; i++) {
-		for (int j = 0; j < this->col; j++) {
+	for (int i = 0; i < this->row; i++)
+	{
+		for (int j = 0; j < this->col; j++)
+		{
 			in >> n;
 			setMatrixElement(i, j, n);
 		}
 	}
 	in.close();
-
 }
-
-
-//template <class T> Matrix<T>& Matrix<T>::operator+=(const Matrix& m) {
-//	try {
-//		if (row == m.row && col == m.col) {
-//			for (int i = 0; i < row; i++) {
-//				for (int j = 0; j < col; j++) {
-//					mat[i][j] += m.mat[i][j];
-//				}
-//			}
-//			return *this;
-//		}
-//		else {
-//			throw 1;
-//		}
-//	}
-//	catch (int i) {
-//		cout << "Error " << i << " invalid res.mat dimention";
-//		exit(i);
-//	}
-//}
-//template <class T> Matrix<T> Matrix<T>::operator+(const Matrix& m) const {
-//	Matrix res(*this);
-//	return res += m;
-//}
-//template <class T> Matrix<T>& Matrix<T>::operator-=(const Matrix& m) {
-//	try {
-//		if (row == m.row && col == m.col) {
-//			for (int i = 0; i < row; i++) {
-//				for (int j = 0; j < col; j++) {
-//					mat[i][j] -= m.mat[i][j];
-//				}
-//			}
-//			return *this;
-//		}
-//		else {
-//			throw 1;
-//		}
-//	}
-//	catch (int i) {
-//		cout << "Error " << i << " invalid res.mat dimention";
-//		exit(i);
-//	}
-//}
-//template <class T> Matrix<T> Matrix<T>::operator-(const Matrix& m) const {
-//	Matrix res(*this);
-//	return res -= m;
-//}
-
-
-
-
-//void count_zero(int* arr) {
-//	cout << sizeof(arr) << '\n';
-//	for (int i = 0; i < sizeof(arr); i++) {
-//		cout << arr[i];
-//	}
-//}
-
-//template <class T> Matrix<T> Matrix<T>::addIdentMax() {
-//	int n_col = col * 2;
-//	int n_row = row;
-//
-//	float** n_mat = new float* [n_row];
-//	for (int i = 0; i < n_row; i++) {
-//		n_mat[i] = new float[n_col];
-//	}
-//
-//	for (int i = 0; i < row; i++) {
-//
-//		for (int j = 0; j < col; j++) {
-//			n_mat[i][j] = mat[i][j];
-//		}
-//		for (int j = col; j < n_col; j++) {
-//
-//			if (i + col == j)
-//				n_mat[i][j] = 1;
-//			else
-//				n_mat[i][j] = 0;
-//		}
-//	}
-//
-//	Matrix n(n_row, n_col, n_mat);
-//	return n;
-//}
-
-//Matrix template <class T> Matrix<T>::getInv() {
-//	try {
-//
-//		if (this->getDet() != 0) {
-//
-//			Matrix res = this->addIdentMax();
-//
-//			for (int i = 0; i < res.row; i++) {
-//				for (int j = 0; j < res.col; j++) {
-//					for (int k = 0; k < res.row; k++) {
-//						cout<<
-//					}
-//				}
-//			}
-//
-//			return res;
-//		}
-//		else {
-//			throw 2;
-//		}
-//	}
-//	catch (int i) {
-//		cout << "Error " << i << " determinant = 0";
-//		exit(i);
-//	}
-//}
