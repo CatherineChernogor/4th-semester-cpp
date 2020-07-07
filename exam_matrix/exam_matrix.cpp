@@ -5,35 +5,31 @@ void Solve();
 
 int main()
 {
-	//Matrix<double> m1(3, 3);
-	//m1.fin("in_matr.txt");
-	//std::cout << m1 << '\n';
+	Matrix<double> m1(3, 3);
+	m1.fin("data/var2/A.txt");
+	std::cout << m1 << '\n';
 
-	//Matrix<double> m2 = m1.getInv();
-	//std::cout << m2 << '\n';
+	double det = m1.getDet();
+	std::cout << det << '\n';
 
-	Solve();
+	//Solve();
 	return 0;
 }
 
 void Solve() {
 
 	Matrix<double> A(3, 3);
-	A.fin("A.txt");
+	A.fin("data/var2/A.txt");
 
 	Matrix<double> B(3, 1);
-	B.fin("B.txt");
+	B.fin("data/var2/B.txt");
 
 	if (!A.isDegen()) {
 		Matrix<double> X = A.getInv() * B;
-		X.fout("X.txt");
+		X.fout("data/var2/X.txt");
+		std::cout << "Saved to the file";
 	}
 	else {
 		std::cout << "Can't solve, matrix is degenerated";
 	}
 }
-
-//A:      B:      X:
-//0 3 1   17      3
-//2 4 1   27      4
-//2 2 0   14      5
