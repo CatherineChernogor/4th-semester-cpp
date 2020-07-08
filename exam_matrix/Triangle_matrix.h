@@ -1,20 +1,22 @@
 #pragma once
 #include <iostream>
 #include "Matrix.h"
-using namespace std;
 
 
-template<class T> class TriangleMatrix : public Matrix<class T>
-{
+template <class T> class TriangleMatrix : public Matrix<T>{
+
 public:
 
-	TriangleMatrix() : Matrix<class T>() {}
-	TriangleMatrix(int r, int c) : Matrix<class T>(r, c) {}
-	TriangleMatrix(int r, int c, float** d) : Matrix<class T>(r, c, d) {}
-	TriangleMatrix(const TriangleMatrix<T>& m) : Matrix<class T>(m) {}
+
+	TriangleMatrix(int r, int c) : TriangleMatrix(r,c, NULL) { }
+	TriangleMatrix(int r, int c, T ** d) {
+		std::cout << "12234";
+		//Matrix<T>::createMatrix(r, c, d);
+	}
+	TriangleMatrix(const TriangleMatrix<T>& m) : Matrix< T>(m) {}
 
 	TriangleMatrix<T> reshapeToTriangle()
-	//template <class T> Matrix<T> Matrix<T>::reshapeToTriangle() 
+		//template <class T> Matrix<T> Matrix<T>::reshapeToTriangle() 
 	{
 
 		Matrix res(*this);
@@ -30,8 +32,5 @@ public:
 		}
 		return res;
 	}
-	void ValueSqr() // возводит value в квадрат. Без спецификатора доступа protected эта функция не могла бы изменить значение value
-	{
-		value *= value;
-	}
+
 };

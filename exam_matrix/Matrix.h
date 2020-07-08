@@ -5,8 +5,9 @@
 #include <string>
 
 template <class T>
-class Matrix
-{
+class Matrix {
+
+protected:
 	int col;
 	int row;
 	T** mat;
@@ -14,12 +15,14 @@ class Matrix
 
 	Matrix<T> getMinor(int a, int  b);
 	Matrix<T> switchRows(int from, int to);
+	Matrix<T> createMatrix(int r, int c, T** d);
 	void setMatrixElement(int r, int c, T n) { this->mat[r][c] = n; }
 
 public:
-	Matrix();
-	Matrix(int r, int c);
-	Matrix(int r, int c, T** d);
+	Matrix(int r) : Matrix<T>(r, r) {}
+	Matrix(int r, int c) : Matrix<T>(r, c, NULL) {}
+	Matrix(int r, int c, T** d) { *this = createMatrix(r, c, d); }
+
 	Matrix(const Matrix<T>& m);
 
 	~Matrix();
@@ -27,13 +30,14 @@ public:
 	Matrix<T>& operator=(const Matrix<T>& m);
 	Matrix<T> operator*(const Matrix<T>& m) const;
 
-	float getDet();		   //determinant
-	Matrix<T> getInv();	   //inverse matrix
-	Matrix<T> getTransp(); //transposed matrix
-	bool isDegen();		   // is degenerate matrix
+	T getDet();				//determinant
+	Matrix<T> getInv();		//inverse matrix
+	Matrix<T> getTransp();	//transposed matrix
+	bool isDegen();			// is degenerate matrix
 
 	void fout(std::string filename);
 	void fin(std::string filename);
+	template <class T> friend std::ostream& operator<<(std::ostream& out, Matrix<T>& m);
 
 
 	int getRow() { return this->row; }
@@ -41,111 +45,18 @@ public:
 
 	bool isSquare() { return this->row == this->col ? true : false; }
 
-	template <class T> friend std::ostream& operator<<(std::ostream& out, Matrix<T>& m)
-	{
-		for (int i = 0; i < m.row; i++)
-		{
-			for (int j = 0; j < m.col; j++)
-			{
-				std::cout.precision(4);
-				out << std::setw(6) << m.mat[i][j] << " ";
-			}
-			out << '\n';
-		}
-		return out;
-	}
 	Matrix<T> reshapeToTriangle();
+
 };
 
 
-
-template <class T> Matrix<T> Matrix<T>::reshapeToTriangle()
-{
-
-	Matrix res(*this);
-	int s = 0;
-	for (; s < this->row; s++) {
-		if (this->mat[s][0] != 0) break;
-	}
-
-	//Если поменять местами две строки матрицы, то определитель матрицы поменяет знак.
-	if (s != 0) {
-		//std::cout << res.getCol() << res.getRow() << '\n';
-		res.switchRows(0, s);
-		res.det_sign = -1;
-	}
-
-
-	for (int i = 1; i < res.col; i++) {
-		for (int j = i; j < res.col; j++) {
-			for (int k = res.col - 1; k >= 0; k--) {
-
-				T koef = res.mat[j][i - 1] / res.mat[i - 1][i - 1];
-				//std::cout<< koef <<" = "<< res.mat[j][i - 1]<<" / "<<res.mat[i - 1][i - 1]<<'\n';
-				res.mat[j][k] -= koef * res.mat[i - 1][k];
-			}
-		}
-	}
-	return res;
-}
-
-
-template <class T> Matrix<T>::Matrix() {
-	row = 2;
-	col = 2;
-	det_sign = 1;
-
-	mat = new T* [row];
-	for (int i = 0; i < row; i++) {
-		mat[i] = new T[col];
-	}
-
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
-			mat[i][j] = (i == j ? 1.0 : 0.0);
-		}
-	}
-}
-template <class T> Matrix<T>::Matrix(int r, int c) {
-	row = r;
-	col = c;
-	det_sign = 1;
-
-	mat = new T* [row];
-	for (int i = 0; i < row; i++) {
-		mat[i] = new T[col];
-	}
-
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
-			mat[i][j] = 0.0;
-		}
-	}
-}
-template <class T> Matrix<T>::Matrix(int r, int c, T** d) {
-	row = r;
-	col = c;
-	det_sign = 1;
-
-
-	mat = new T* [row];
-	for (int i = 0; i < row; i++) {
-		mat[i] = new T[col];
-	}
-
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
-			mat[i][j] = d[i][j];
-		}
-	}
-}
 template <class T> Matrix<T>::Matrix(const Matrix& m) {
 	this->row = m.row;
 	this->col = m.col;
 	this->det_sign = m.det_sign;
 
 
-	this->mat = new T* [this->row];
+	this->mat = new T * [this->row];
 	for (int i = 0; i < this->row; i++) {
 		mat[i] = new T[this->col];
 	}
@@ -203,21 +114,41 @@ template <class T> Matrix<T> Matrix<T>::operator*(const Matrix& m) const {
 	}
 }
 
-
-template <class T> float Matrix<T>::getDet() {
+template <class T> T Matrix<T>::getDet() {
 
 	if (this->isSquare()) {
-		Matrix res(*this);
-		res = res.reshapeToTriangle();
-		float det = res.det_sign;
+		if (this->row == 1) return this->mat[0][0];
+		else if (this->row == 2) return (this->mat[0][0] * this->mat[1][1]) - (this->mat[0][1] * this->mat[1][0]);
+		if (this->row > 2) {
 
-		for (int i = 0; i < res.row; i++) {
-			for (int j = 0; j < res.col; j++) {
-				if (i == j)
-					det *= res.mat[i][j];
+			Matrix res(*this);
+			T det = res.det_sign;
+			/*
+						res = res.reshapeToTriangle();
+
+						for (int i = 0; i < res.row; i++) {
+							for (int j = 0; j < res.col; j++) {
+								if (i == j)
+									det *= res.mat[i][j];
+							}
+						}*/
+
+			for (int i = 0; i < this->row; i++) {
+				for (int j = 0; j < this->col; j++) {
+					Matrix minor = this->getMinor(i, j);
+					double d_minor = minor.getDet();
+					int sign = ((i + j) % 2 == 0 ? 1 : -1);
+
+
+
+					//std::cout << "minor " << i + 1 << ' ' << j + 1 << "\n" << minor << "det: " << d_minor << '\n' << "sign: " << sign << "\n\n";
+
+					res.mat[i][j] = sign * d_minor;
+				}
 			}
+
+			return det;
 		}
-		return det;
 	}
 	else {
 		std::cout << "Error: not square res.mat";
@@ -234,16 +165,21 @@ template <class T> Matrix<T> Matrix<T>::getInv() {
 					Matrix minor = this->getMinor(i, j);
 					double d_minor = minor.getDet();
 					int sign = ((i + j) % 2 == 0 ? 1 : -1);
+
+
+
+					std::cout << "minor " << i + 1 << ' ' << j + 1 << "\n" << minor << "det: " << d_minor << '\n' << "sign: " << sign << "\n\n";
+
 					res.mat[i][j] = sign * d_minor;
 				}
 			}
-
-			std::cout << "union\n" << res << "\n\n\ntransponsed\n";
+			std::cout << "\n\n";
+			//std::cout << "union\n" << res << "\n\n\ntransponsed\n";
 
 			res = res.getTransp();						//union and transposed
 			double det = this->getDet();
 
-			std::cout << res << "\n\n\ndet\n" << det << "\n\n\n";
+			//std::cout << res << "\n\n\ndet\n" << det << "\n\n\n";
 
 			for (int i = 0; i < this->row; i++) {
 				for (int j = 0; j < this->col; j++) {
@@ -299,6 +235,19 @@ template <class T> void Matrix<T>::fin(std::string filename) {
 	}
 	in.close();
 }
+template <class T> std::ostream& operator<<(std::ostream& out, Matrix<T>& m)
+{
+	for (int i = 0; i < m.row; i++)
+	{
+		for (int j = 0; j < m.col; j++)
+		{
+			std::cout.precision(4);
+			out << std::setw(6) << m.mat[i][j] << " ";
+		}
+		out << '\n';
+	}
+	return out;
+}
 
 template <class T> Matrix<T> Matrix<T>::getMinor(int a, int  b) {
 	Matrix res(this->row - 1, this->col - 1);
@@ -319,7 +268,7 @@ template <class T> Matrix<T> Matrix<T>::switchRows(int from, int to) {
 
 	T* rowFrom = new T[this->row];
 	T* rowTo = new T[this->row];
-	
+
 	for (int i = 0; i < this->row; i++) {
 		rowFrom[i] = this->mat[from][i];
 		rowTo[i] = this->mat[to][i];
@@ -331,24 +280,63 @@ template <class T> Matrix<T> Matrix<T>::switchRows(int from, int to) {
 			if (i == to) { this->mat[i][j] = rowFrom[j]; }
 		}
 	}
-	
+
+	return *this;
+}
+template <class T> Matrix<T> Matrix<T>::createMatrix(int r, int c, T** d) {
+	row = r;
+	col = c;
+	det_sign = 1;
+
+
+	mat = new T * [row];
+	for (int i = 0; i < row; i++) {
+		mat[i] = new T[col];
+	}
+
+	if (d != NULL) {
+		for (int i = 0; i < row; i++)
+			for (int j = 0; j < col; j++)
+				mat[i][j] = d[i][j];
+
+
+	}
+	else {
+		for (int i = 0; i < row; i++)
+			for (int j = 0; j < col; j++)
+				mat[i][j] = 0;
+
+
+	}
 	return *this;
 }
 
+template <class T> Matrix<T> Matrix<T>::reshapeToTriangle()
+{
 
-class A {
-
-	int value;
-public:
-	A() {
-		value = 0;
+	Matrix res(*this);
+	int s = 0;
+	for (; s < this->row; s++) {
+		if (this->mat[s][0] != 0) break;
 	}
-};
 
-class B : public A {
-public:
-	B() : A() {
-
-		//some code
+	//Если поменять местами две строки матрицы, то определитель матрицы поменяет знак.
+	if (s != 0) {
+		//std::cout << res.getCol() << res.getRow() << '\n';
+		res.switchRows(0, s);
+		res.det_sign = -1;
 	}
-};
+
+
+	for (int i = 1; i < res.col; i++) {
+		for (int j = i; j < res.col; j++) {
+			for (int k = res.col - 1; k >= 0; k--) {
+
+				T koef = res.mat[j][i - 1] / res.mat[i - 1][i - 1];
+				//std::cout<< koef <<" = "<< res.mat[j][i - 1]<<" / "<<res.mat[i - 1][i - 1]<<'\n';
+				res.mat[j][k] -= koef * res.mat[i - 1][k];
+			}
+		}
+	}
+	return res;
+}
