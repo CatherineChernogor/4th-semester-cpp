@@ -47,7 +47,7 @@ public:
 };
 
 
-Matrix::Matrix(const Matrix& m) { //copy constructor
+Matrix::Matrix(const Matrix& m) { 
 	this->row = m.row;
 	this->col = m.col;
 	this->det_sign = m.det_sign;
@@ -65,7 +65,7 @@ Matrix::Matrix(const Matrix& m) { //copy constructor
 	}
 }
 
-Matrix::~Matrix() { //destructor
+Matrix::~Matrix() { 
 	for (int i = 0; i < this->row; i++) {
 		delete[] this->mat[i];
 	}
@@ -127,7 +127,6 @@ double Matrix::getDet() {
 			double det = 1;
 
 			res.reshapeToTriangle();
-			//std::cout <<"reshape to triangle\n"<< res<<"\n\n\n";
 
 			for (int i = 0; i < res.row; i++) {
 				for (int j = 0; j < res.col; j++) {
@@ -145,38 +144,32 @@ double Matrix::getDet() {
 	}
 }
 Matrix Matrix::getInv() {
+
 	try {
 		if (!this->isDegen()) {
 			Matrix res(this->row, this->col);
 
 			for (int i = 0; i < this->row; i++) {		//create union matrix
 				for (int j = 0; j < this->col; j++) {
+
 					Matrix minor = this->getMinor(i, j);
 					double d_minor = minor.getDet();
 					int sign = ((i + j) % 2 == 0 ? 1 : -1);
 
-					//std::cout << "minor " << i + 1 << ' ' << j + 1 << "\n" << minor << "det: " << d_minor << '\n' << "sign: " << sign << "\n\n";
-
 					res.mat[i][j] = sign * d_minor;
 				}
 			}
-			//std::cout << "\n\n";
 
 			double det = this->getDet();
 
-			//std::cout << "union\n" << res << "\n\n\ntransponsed\n";
-
 			res = res.getTransp();						//union and transposed
-
-			//std::cout << res << "\n\n\ndet\n" << det << "\n\n\n";
 
 			for (int i = 0; i < this->row; i++) {
 				for (int j = 0; j < this->col; j++) {
+
 					res.mat[i][j] /= det;
 				}
 			}
-
-			//std::cout <<"inversed\n"<< res << "\n\n\n";
 
 			return res;
 		}
@@ -201,6 +194,7 @@ Matrix Matrix::getTransp() {
 	return res;
 }
 bool Matrix::isDegen() {
+
 	return this->getDet() == 0 ? true : false;
 }
 
@@ -232,7 +226,15 @@ std::ostream& operator<<(std::ostream& out, Matrix& m) {
 	for (int i = 0; i < m.row; i++) {
 		for (int j = 0; j < m.col; j++) {
 			std::cout.precision(4);
-			out << std::setw(6) << m.mat[i][j] << " ";
+
+			if (
+				(m.mat[i][j] < 1E-6 && m.mat[i][j]>0)
+				|| m.mat[i][j] > -1E-6
+				)
+
+				out << std::setw(6) << int(m.mat[i][j]) << " ";
+			else
+				out << std::setw(6) << m.mat[i][j] << " ";
 		}
 		out << '\n';
 	}
@@ -241,7 +243,7 @@ std::ostream& operator<<(std::ostream& out, Matrix& m) {
 
 Matrix Matrix::getMinor(int a, int  b) {
 
-	Matrix res(this->row - 1, this->col - 1);
+	Matrix res(this->row - 1);
 
 	int koef_i = 0;
 	for (int i = 0; i < res.row; i++) {
@@ -299,31 +301,26 @@ void Matrix::switchRows(int from, int to) {
 }
 void Matrix::reshapeToTriangle() {
 
-	//Matrix res(*this);
-	//std::cout << "normal\n" << *this << "\n\n\n";
 	int s = 0;
 	for (; s < this->row; s++) {
 		if (this->mat[s][0] != 0) break;
 	}
 
-	//Если поменять местами две строки матрицы, то определитель матрицы поменяет знак.
+	//If we swap two rows of the matrix, the matrix determinant changes the sign.
 	if (s != 0) {
-		//std::cout << res.getCol() << res.getRow() << '\n';
+
 		this->switchRows(0, s);
 		this->det_sign *= -1;
 	}
-	//std::cout << "switched\n" << *this << "\n\n\n";
 
-	for (int i = 1; i < this->col; i++)
+	for (int i = 1; i < this->col; i++) {
 		for (int j = i; j < this->col; j++) {
 
-
-			for (int k = this->col - 1; k >= 0; k--){
-				float koef = this->mat[j][i - 1] / this->mat[i - 1][i - 1];
+			float koef = this->mat[j][i - 1] / this->mat[i - 1][i - 1];
+			for (int k = this->col - 1; k >= 0; k--) {
 
 				this->mat[j][k] -= koef * this->mat[i - 1][k];
-				}
+			}
 		}
-
-	//*this = res;
+	}
 }

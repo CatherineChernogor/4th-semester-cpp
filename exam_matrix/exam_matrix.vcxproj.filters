@@ -20,10 +20,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Matrix.h">
+    <ClInclude Include="_TriangleMatrix.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="Triangle_matrix.h">
+    <ClInclude Include="_Matrix.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
