@@ -3,27 +3,26 @@
 #include "_Matrix.h"
 
 
- class TriangleMatrix : public Matrix{
+ template <class T> class TriangleMatrix : public Matrix<T>{
 
 public:
 
-    TriangleMatrix(int r) : TriangleMatrix(r, r) { }
-    TriangleMatrix(int r, int c) : TriangleMatrix(r,c, NULL) { }
-    TriangleMatrix(int r, int c, double ** d) : Matrix(r,c,d) {
+    TriangleMatrix<T>(int r) : TriangleMatrix<T>(r, r) { }
+    TriangleMatrix<T>(int r, int c) : TriangleMatrix<T>(r,c, NULL) { }
+    TriangleMatrix<T>(int r, int c, double ** d) : Matrix<T>(r,c,d) {
         if (d != NULL) {
             this->reshapeToTriangle();
         }
     }
-
-    TriangleMatrix(const Matrix& m) :Matrix(m) {}
+                  
+    TriangleMatrix<T>(const Matrix<T>& m) :Matrix<T>(m) {}
 
     void fin(std::string filename) { 
-        Matrix::fin(filename);
+        Matrix<T>::fin(filename);
         this->reshapeToTriangle();
-
     }
 
-    TriangleMatrix& operator=(const TriangleMatrix& m) {
+    TriangleMatrix<T>& operator=(const TriangleMatrix<T>& m) {
         try {
             if (m.row == this->row && m.col == this->col) {
                 for (int i = 0; i < this->row; i++) {

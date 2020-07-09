@@ -4,58 +4,58 @@
 #include <fstream>
 
 
-class Matrix {
+template <class T> class Matrix {
 
 protected:
 	int col;
 	int row;
-	double** mat;
+	T** mat;
 	int det_sign;
 
-	Matrix getMinor(int a, int  b);
+	Matrix<T> getMinor(int a, int  b);
 
 public:
-	Matrix(int r) : Matrix(r, r) {}
-	Matrix(int r, int c) : Matrix(r, c, NULL) {}
-	Matrix(int r, int c, double** d) { *this = createMatrix(r, c, d); }
+	Matrix<T>(int r) : Matrix<T>(r, r) {}
+	Matrix<T>(int r, int c) : Matrix<T>(r, c, NULL) {}
+	Matrix<T>(int r, int c, T** d) { *this = createMatrix(r, c, d); }
+		  
+	Matrix<T>(const Matrix& m);
 
-	Matrix(const Matrix& m);
+	~Matrix<T>();
 
-	~Matrix();
-
-	Matrix& operator=(const Matrix& m);
-	Matrix operator*(const Matrix& m) const;
+	Matrix<T>& operator=(const Matrix<T>& m);
+	Matrix<T> operator*(const Matrix<T>& m) const;
 
 	double getDet();            //determinant
-	Matrix getInv();            //inverse matrix
-	Matrix getTransp();         //transposed matrix
+	Matrix<T> getInv();            //inverse matrix
+	Matrix<T> getTransp();         //transposed matrix
 	bool isDegen();             // is degenerate matrix
 
 	void fout(std::string filename);
 	void fin(std::string filename);
-	friend std::ostream& operator<<(std::ostream& out, Matrix& m);
+	template <class T> friend std::ostream& operator<<(std::ostream& out, Matrix<T>& m);
 
 	int getRow() { return this->row; }
 	int getCol() { return this->col; }
 
 	bool isSquare() { return this->row == this->col ? true : false; }
 
-	Matrix createMatrix(int r, int c, double** d);
+	Matrix<T> createMatrix(int r, int c, T** d);
 
 	void switchRows(int from, int to);
 	void reshapeToTriangle();
 };
 
 
-Matrix::Matrix(const Matrix& m) { 
+template <class T> Matrix<T>::Matrix(const Matrix<T>& m) { 
 	this->row = m.row;
 	this->col = m.col;
 	this->det_sign = m.det_sign;
 
 
-	this->mat = new double* [this->row];
+	this->mat = new T* [this->row];
 	for (int i = 0; i < this->row; i++) {
-		this->mat[i] = new double[this->col];
+		this->mat[i] = new T[this->col];
 	}
 
 	for (int i = 0; i < this->row; i++) {
@@ -65,14 +65,14 @@ Matrix::Matrix(const Matrix& m) {
 	}
 }
 
-Matrix::~Matrix() { 
+template <class T> Matrix<T>::~Matrix() {
 	for (int i = 0; i < this->row; i++) {
 		delete[] this->mat[i];
 	}
 	delete[] this->mat;
 }
-
-Matrix& Matrix::operator=(const Matrix& m) {
+						 
+template <class T> Matrix<T>& Matrix<T>::operator=(const Matrix<T>& m) {
 	try {
 		if (m.row == this->row && m.col == this->col) {
 			for (int i = 0; i < this->row; i++) {
@@ -89,7 +89,7 @@ Matrix& Matrix::operator=(const Matrix& m) {
 		exit(i);
 	}
 }
-Matrix Matrix::operator*(const Matrix& m) const {
+template <class T> Matrix<T> Matrix<T>::operator*(const Matrix<T>& m) const {
 	try {
 		if (this->col == m.row) {
 
@@ -112,7 +112,7 @@ Matrix Matrix::operator*(const Matrix& m) const {
 	}
 }
 
-double Matrix::getDet() {
+template <class T> double Matrix<T>::getDet() {
 
 	if (this->isSquare()) {
 
@@ -143,7 +143,7 @@ double Matrix::getDet() {
 		return 0;
 	}
 }
-Matrix Matrix::getInv() {
+template <class T> Matrix<T> Matrix<T>::getInv() {
 
 	try {
 		if (!this->isDegen()) {
@@ -182,7 +182,7 @@ Matrix Matrix::getInv() {
 		exit(i);
 	}
 }
-Matrix Matrix::getTransp() {
+template <class T> Matrix<T> Matrix<T>::getTransp() {
 
 	Matrix res(*this);
 
@@ -193,12 +193,12 @@ Matrix Matrix::getTransp() {
 	}
 	return res;
 }
-bool Matrix::isDegen() {
+template <class T> bool Matrix<T>::isDegen() {
 
 	return this->getDet() == 0 ? true : false;
 }
 
-void Matrix::fout(std::string filename) {
+template <class T> void Matrix<T>::fout(std::string filename) {
 
 	std::ofstream out(filename);
 	for (int i = 0; i < this->row; i++) {
@@ -209,10 +209,10 @@ void Matrix::fout(std::string filename) {
 	}
 	out.close();
 }
-void Matrix::fin(std::string filename) {
+template <class T> void Matrix<T>::fin(std::string filename) {
 
 	std::ifstream in(filename);
-	double n;
+	T n;
 	for (int i = 0; i < this->row; i++) {
 		for (int j = 0; j < this->col; j++) {
 			in >> n;
@@ -221,7 +221,7 @@ void Matrix::fin(std::string filename) {
 	}
 	in.close();
 }
-std::ostream& operator<<(std::ostream& out, Matrix& m) {
+template <class T> std::ostream& operator<<(std::ostream& out, Matrix<T>& m) {
 
 	for (int i = 0; i < m.row; i++) {
 		for (int j = 0; j < m.col; j++) {
@@ -241,7 +241,7 @@ std::ostream& operator<<(std::ostream& out, Matrix& m) {
 	return out;
 }
 
-Matrix Matrix::getMinor(int a, int  b) {
+template <class T> Matrix<T> Matrix<T>::getMinor(int a, int  b) {
 
 	Matrix res(this->row - 1);
 
@@ -258,14 +258,14 @@ Matrix Matrix::getMinor(int a, int  b) {
 	return res;
 }
 
-Matrix Matrix::createMatrix(int r, int c, double** d) {
+template <class T> Matrix<T> Matrix<T>::createMatrix(int r, int c, T** d) {
 	row = r;
 	col = c;
 	det_sign = 1;
 
-	mat = new double* [row];
+	mat = new T* [row];
 	for (int i = 0; i < row; i++) {
-		mat[i] = new double[col];
+		mat[i] = new T[col];
 	}
 
 	if (d != NULL) {
@@ -281,10 +281,10 @@ Matrix Matrix::createMatrix(int r, int c, double** d) {
 	return *this;
 }
 
-void Matrix::switchRows(int from, int to) {
+template <class T> void Matrix<T>::switchRows(int from, int to) {
 
-	double* rowFrom = new double[this->row];
-	double* rowTo = new double[this->row];
+	T* rowFrom = new T[this->row];
+	T* rowTo = new T[this->row];
 
 	for (int i = 0; i < this->row; i++) {
 		rowFrom[i] = this->mat[from][i];
@@ -299,7 +299,7 @@ void Matrix::switchRows(int from, int to) {
 		}
 	}
 }
-void Matrix::reshapeToTriangle() {
+template <class T> void Matrix<T>::reshapeToTriangle() {
 
 	int s = 0;
 	for (; s < this->row; s++) {
