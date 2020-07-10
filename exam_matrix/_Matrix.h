@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 #include <iomanip>
 #include <fstream>
 
@@ -25,6 +26,7 @@ public:
 
 	Matrix<T>& operator=(const Matrix<T>& m);
 	Matrix<T> operator*(const Matrix<T>& m) const;
+	Matrix<T> operator*(const std::vector<T>& v) const;
 
 	double getDet();            //determinant
 	Matrix<T> getInv();            //inverse matrix
@@ -111,6 +113,28 @@ template <class T> Matrix<T> Matrix<T>::operator*(const Matrix<T>& m) const {
 		exit(i);
 	}
 }
+template <class T> Matrix<T> Matrix<T>::operator*(const std::vector<T>& v) const {
+	try {
+		if (this->col == v.size()) {
+
+			Matrix res(this->row, 1);
+
+			for (int i = 0; i < this->row; i++) {
+
+				for (int k = 0; k < this->col; k++)
+					res.mat[i][0] += this->mat[i][k] * v[k];
+
+			}
+			return res;
+		}
+		else
+			throw 1;
+	}
+	catch (int i) {
+		std::cout << "Error " << i << " invalid res.mat dimention";
+		exit(i);
+	}
+}
 
 template <class T> double Matrix<T>::getDet() {
 
@@ -155,18 +179,14 @@ template <class T> Matrix<T> Matrix<T>::getInv() {
 					Matrix minor = this->getMinor(i, j);
 					double d_minor = minor.getDet();
 					int sign = ((i + j) % 2 == 0 ? 1 : -1);
-					//std::cout << "minor " << i + 1 << ' ' << j + 1 
-					//	<< "\ndet: " << d_minor 
-					//	<< "\nsign: " << sign 
-					//	<< "\nvalue: "<<sign*d_minor
-					//	<< "\n";
+
 
 					res.mat[i][j] = sign * d_minor;
 
-					//std::cout << res.mat[i][j]<< "\n\n";
+
 				}
 			}
-			//std::cout << "\n\nunion\n" << res << '\n';
+
 			double det = this->getDet();
 
 			res = res.getTransp();						//union and transposed
@@ -241,7 +261,7 @@ template <class T> std::ostream& operator<<(std::ostream& out, Matrix<T>& m) {
 
 				out << std::setw(6) << int(m.mat[i][j]) << " ";
 			else*/
-				out << std::setw(6) << m.mat[i][j] << " ";
+			out << std::setw(6) << m.mat[i][j] << " ";
 		}
 		out << '\n';
 	}
