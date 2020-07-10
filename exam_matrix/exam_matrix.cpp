@@ -2,29 +2,31 @@
 #include "_Matrix.h"
 #include "_TriangleMatrix.h"
 
-void Solve(std::string path);
+void Solve(std::string path, int size);
 void TriangleExample();
 
 int main()
 {
-	Solve("data/var2");
+	Solve("data/var4", 4);
 
-	TriangleExample();
+	//TriangleExample();
 
 	return 0;
 }
 
-void Solve(std::string path) {
+void Solve(std::string path, int size) {
 
-	Matrix<double> A(3, 3);
+	Matrix<double> A(size);
 	A.fin(path + "/A.txt");
 
-	Matrix<double> B(3, 1);
+	Matrix<double> B(size, 1);
 	B.fin(path + "/B.txt");
 
 	if (!A.isDegen()) {
 
 		Matrix<double> X = A.getInv() * B;
+		A = A.getInv();
+
 		X.fout(path + "/X.txt");
 		std::cout << "Solved and saved to the file\n"<<X;
 	}

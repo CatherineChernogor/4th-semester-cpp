@@ -18,7 +18,7 @@ public:
 	Matrix<T>(int r) : Matrix<T>(r, r) {}
 	Matrix<T>(int r, int c) : Matrix<T>(r, c, NULL) {}
 	Matrix<T>(int r, int c, T** d) { *this = createMatrix(r, c, d); }
-		  
+
 	Matrix<T>(const Matrix& m);
 
 	~Matrix<T>();
@@ -47,13 +47,13 @@ public:
 };
 
 
-template <class T> Matrix<T>::Matrix(const Matrix<T>& m) { 
+template <class T> Matrix<T>::Matrix(const Matrix<T>& m) {
 	this->row = m.row;
 	this->col = m.col;
 	this->det_sign = m.det_sign;
 
 
-	this->mat = new T* [this->row];
+	this->mat = new T * [this->row];
 	for (int i = 0; i < this->row; i++) {
 		this->mat[i] = new T[this->col];
 	}
@@ -71,7 +71,7 @@ template <class T> Matrix<T>::~Matrix() {
 	}
 	delete[] this->mat;
 }
-						 
+
 template <class T> Matrix<T>& Matrix<T>::operator=(const Matrix<T>& m) {
 	try {
 		if (m.row == this->row && m.col == this->col) {
@@ -155,11 +155,18 @@ template <class T> Matrix<T> Matrix<T>::getInv() {
 					Matrix minor = this->getMinor(i, j);
 					double d_minor = minor.getDet();
 					int sign = ((i + j) % 2 == 0 ? 1 : -1);
+					//std::cout << "minor " << i + 1 << ' ' << j + 1 
+					//	<< "\ndet: " << d_minor 
+					//	<< "\nsign: " << sign 
+					//	<< "\nvalue: "<<sign*d_minor
+					//	<< "\n";
 
 					res.mat[i][j] = sign * d_minor;
+
+					//std::cout << res.mat[i][j]<< "\n\n";
 				}
 			}
-
+			//std::cout << "\n\nunion\n" << res << '\n';
 			double det = this->getDet();
 
 			res = res.getTransp();						//union and transposed
@@ -227,13 +234,13 @@ template <class T> std::ostream& operator<<(std::ostream& out, Matrix<T>& m) {
 		for (int j = 0; j < m.col; j++) {
 			std::cout.precision(4);
 
-			if (
+			/*if (
 				(m.mat[i][j] < 1E-6 && m.mat[i][j]>0)
 				|| m.mat[i][j] > -1E-6
 				)
 
 				out << std::setw(6) << int(m.mat[i][j]) << " ";
-			else
+			else*/
 				out << std::setw(6) << m.mat[i][j] << " ";
 		}
 		out << '\n';
@@ -263,7 +270,7 @@ template <class T> Matrix<T> Matrix<T>::createMatrix(int r, int c, T** d) {
 	col = c;
 	det_sign = 1;
 
-	mat = new T* [row];
+	mat = new T * [row];
 	for (int i = 0; i < row; i++) {
 		mat[i] = new T[col];
 	}
